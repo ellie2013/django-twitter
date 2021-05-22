@@ -37,9 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     #third party
+    #third party
     'rest_framework',
 
+    #project apps
+    'accounts',
 ]
 
 REST_FRAMEWORK = {
@@ -130,3 +132,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+LOGGING = {
+  'version': 1, 'disable_existing_loggers': False, 
+  'handlers': {
+    'console': {
+      'level': 'DEBUG',
+      'class': 'logging.StreamHandler',
+    },
+  },
+  'loggers': { 
+    'django.db.backends': {
+      'handlers': ['console'], 
+      'propagate': True, 
+      'level': 'DEBUG',
+    }, 
+  }
+}
