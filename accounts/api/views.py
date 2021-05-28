@@ -11,8 +11,11 @@ from django.contrib.auth import (
     login as django_login,
     logout as django_logout,
 )
+
 from accounts.api.serializers import SignupSerializer, LoginSerializer
-class UserViewSet(viewsets.ModelViewSet):
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -20,9 +23,11 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 class AccountViewSet(viewsets.ViewSet):
     permission_classes = (AllowAny,)
     serializer_class = SignupSerializer
+
     @action(methods=['POST'], detail=False)
     def signup(self, request):
         serializer = SignupSerializer(data=request.data)
@@ -73,8 +78,8 @@ class AccountViewSet(viewsets.ViewSet):
             'ip': request.META['REMOTE_ADDR'],
         }
         if request.user.is_authenticated:
-            data['user'] = UserSerializer(request.user,context={'request': request}).data
-            return Response(data)
+            data['user'] = UserSerializer(request.user).data
+        return Response(data)
 
     @action(methods=['POST'], detail=False)
     def logout(self, request):
