@@ -1,4 +1,4 @@
-from django.test import TestCase
+from testing.testcases import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 
@@ -10,15 +10,10 @@ LOGIN_STATUS_URL = '/api/accounts/login_status/'
 
 class AccountApiTests(TestCase):
 
-    def createUser(self, username, email, password):
-        # 不能写成 User.objects.create()
-        # 因为 password 需要被加密, username 和 email 需要进行一些 normalize 处理
-        return User.objects.create_user(username, email, password)
-
     def setUp(self):
         # 这个函数会在每个 test function 执行的时候被执行
         self.client = APIClient()  # it doesn't matter if remove this line. self.client=APIClient()
-        self.user = self.createUser(
+        self.user = self.create_user(
             username='admin',
             email='admin@jiuzhang.com',
             password='correct password',
