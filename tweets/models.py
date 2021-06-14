@@ -17,6 +17,8 @@ class Tweet(models.Model):
 
     # updated_at = models.DateTimeField(auto_now=True)
 
+    
+
     @property
     def hours_to_now(self):
         return (utc_now()- self.created_at).seconds // 3600

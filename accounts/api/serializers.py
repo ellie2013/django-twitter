@@ -8,23 +8,31 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['username', 'email']
 
 
+class UserSerializerForTweet(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'id']
+
+
 class SignupSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=20, min_length=6)
     password = serializers.CharField(max_length=20, min_length=6)
     email = serializers.EmailField()
+
     class Meta:
         model = User
         fields = ('username', 'email', 'password')
+
     def validate(self, data):
-    # TODO<HOMEWORK> 增加验证 username 是不是只由给定的字符集合构成
+        # TODO<HOMEWORK> 增加验证 username 是不是只由给定的字符集合构成
         if User.objects.filter(username=data['username'].lower()).exists():
             raise exceptions.ValidationError({
                 'message': 'This email address has been occupied.'
-        })
+            })
         if User.objects.filter(email=data['email'].lower()).exists():
             raise exceptions.ValidationError({
                 'message': 'This email address has been occupied.'
-        })
+            })
         return data
 
     def create(self, validated_data):
