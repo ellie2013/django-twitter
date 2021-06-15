@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from utils.time_helpers import utc_now
 
+
 # Create your models here.
 class Tweet(models.Model):
     user = models.ForeignKey(
@@ -13,13 +14,20 @@ class Tweet(models.Model):
         # verbose_name=u'谁发了这个帖子',
     )
     content = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
+    # create index for the single column created_at
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     # updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:  # 联合索引
+        index_together = (
+            ('user', 'created_at'),
+        )
+        ordering = ('user', '-created_at')
+
     @property
     def hours_to_now(self):
-        return (utc_now()- self.created_at).seconds // 3600
+        return (utc_now() - self.created_at).seconds  // 3600
 
     def __str__(self):
         # 这里是你执行 print(tweet instance) 的时候会显示的内容
