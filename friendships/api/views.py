@@ -13,7 +13,6 @@ from friendships.models import Friendship
 
 
 class FriendshipViewSet(viewsets.GenericViewSet):
-
     serializer_class = FriendshipSerializerForCreate
 
     # 我们希望 POST /api/friendship/1/follow 是去 follow user_id=1 的用户
@@ -45,12 +44,14 @@ class FriendshipViewSet(viewsets.GenericViewSet):
             status=status.HTTP_200_OK,
         )
 
-
     @action(methods=['POST'], detail=True, permission_classes=[IsAuthenticated])
     def follow(self, request, pk):
         # /api/friendships/<pk>/follow/
         # 特殊判断重复 follow 的情况（比如前端猛点好多少次 follow)
         # 静默处理，不报错，因为这类重复操作因为网络延迟的原因会比较多，没必要当做错误处理
+
+        # get_object 会检测if user with id=pk 是否存在，如果不存在会return 404 异常
+        follow_user = self.get_object()
 
         if Friendship.objects.filter(
                 from_user=request.user,
@@ -69,12 +70,20 @@ class FriendshipViewSet(viewsets.GenericViewSet):
                 'success': False,
                 'errors': serializer.errors,
             }, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response({'success': True}, status=status.HTTP_201_CREATED)
+        instance = serializer.save()
+        return Response(
+            # instead returning success=> true, returning the pk (the request tries to follow the pk) data
+            # the return data includes user_id, created_at
+
+            FollowingSerializer(instance).data,
+            status=status.HTTP_201_CREATED,
+        )
 
     @action(methods=['POST'], detail=True, permission_classes=[IsAuthenticated])
     def unfollow(self, request, pk):
-        # 注意 pk 的类型是 str，所以要做类型转换
+        # raise 404 if no user with id=pk
+        unfollow_user = self.get_object()
+        # 注意 pk 的类型是 str，所以要做类型转换, or request.user.id == unfolow_user.id
         if request.user.id == int(pk):
             return Response({
                 'success': False,
