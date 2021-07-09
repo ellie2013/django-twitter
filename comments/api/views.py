@@ -9,6 +9,7 @@ from comments.api.serializers import (
     CommentSerializerForCreate,
     CommentSerializerForUpdate,
 )
+from utils.decorators import required_params
 
 
 # Note: CommentViewSet 继承的是 GenericViewSet 而不是 ModelViewSet
@@ -41,7 +42,9 @@ class CommentViewSet(viewsets.GenericViewSet):
         if self.action in ['update', 'destroy']:
             return [IsAuthenticated(), IsObjectOwner()]
         return [AllowAny()]
+
     # GET /api/comments/?tweet_id=1
+    @required_params(params=['tweet_id'])
     def list(self, request, *args, **kwargs):
         if 'tweet_id' not in request.query_params:
             return Response(
@@ -50,12 +53,12 @@ class CommentViewSet(viewsets.GenericViewSet):
                     'success': False,
                 },
                 status=status.HTTP_400_BAD_REQUEST,
-        )
+            )
         queryset = self.get_queryset()
         # this is related to the django_filter backend
         # 下面这句话为了提高效率用prefetch_related, 也可以用select_related('user'), 但是select_related 会有join 不好
-        comments = self.filter_queryset(queryset)\
-            .prefetch_related('user')\
+        comments = self.filter_queryset(queryset) \
+            .prefetch_related('user') \
             .order_by('created_at')
         serializer = CommentSerializer(comments, many=True)
         return Response(
