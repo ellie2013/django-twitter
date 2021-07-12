@@ -2,11 +2,15 @@ from accounts.api.serializers import UserSerializerForComment
 from comments.models import Comment
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+from likes.services import LikeService
 from tweets.models import Tweet
 
 
 class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializerForComment()
+    likes_count = serializers.SerializerMethodField()
+    has_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -18,7 +22,16 @@ class CommentSerializer(serializers.ModelSerializer):
             'content',
             'created_at',
             'updated_at',
+            'likes_count',
+            'has_liked',
         )
+
+    def get_likes_count(self, obj):
+        return obj.like_set.count()
+
+    def get_has_liked(self, obj):
+        # 这个request.user 只是当下发送请求的用户，可以是登录的也可以没有登录
+        return LikeService.has_liked(self.context['request'].user, obj)
 
 
 class CommentSerializerForCreate(serializers.ModelSerializer):
