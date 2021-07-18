@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import os
 import sys
 from pathlib import Path
 
@@ -167,6 +168,9 @@ AWS_S3_REGION_NAME = 'us-east-2'
 # AWS_ACCESS_KEY_ID = 'YOUR_ACCESS_KEY_ID'
 # AWS_SECRET_ACCESS_KEY = 'YOUR_SECRET_ACCESS_KEY'
 
+# 或者讲key存放在环境变量里面即存放在~/.bashrc，这样一来可以保证prod和dev环境可以有不同的值，二来比较安全，用户看不到值
+AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 
 # media 的作用适用于存放被用户上传的文件信息
 # 当我们使用默认 FileSystemStorage 作为 DEFAULT_FILE_STORAGE 的时候
