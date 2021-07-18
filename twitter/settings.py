@@ -169,6 +169,8 @@ AWS_S3_REGION_NAME = 'us-east-2'
 # AWS_SECRET_ACCESS_KEY = 'YOUR_SECRET_ACCESS_KEY'
 
 # 或者讲key存放在环境变量里面即存放在~/.bashrc，这样一来可以保证prod和dev环境可以有不同的值，二来比较安全，用户看不到值
+# Once add the keys in ~/.bashrc, need to 'vagrant halt' and 'vagrant up' and then 'vagrant ssh',
+# otherwise couldn't find the key when run the app, the error is " raise KeyError(key) from None"
 AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 
