@@ -35,6 +35,7 @@ router.register(r'api/newsfeeds', NewsFeedViewSet, basename='newsfeeds')
 router.register(r'api/comments', CommentViewSet, basename='comments')
 router.register(r'api/likes', LikeViewSet, basename='likes')
 router.register(r'api/notifications', NotificationViewSet, basename='notifications')
+router.register(r'api/profiles', views.UserProfileViewSet, basename='profiles')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
