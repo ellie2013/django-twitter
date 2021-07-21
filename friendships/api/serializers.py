@@ -53,11 +53,6 @@ class FollowerSerializer(serializers.ModelSerializer):
             return False
         # <TODO> 这个部分会对每个 object 都去执行一次 SQL 查询，速度会很慢，如何优化呢？
         # 我们将在后序的课程中解决这个问题
-        print("\nhahahh\n")
-        print(obj)
-        print("\n")
-        print(self.context['request'].user)
-        print("\nlalal\n")
         return FriendshipService.has_followed(self.context['request'].user, obj.from_user)
 
 
