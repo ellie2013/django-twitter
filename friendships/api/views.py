@@ -26,7 +26,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
     def followers(self, request, pk):
         # /api/friendships/1/followers/ Get 用户id=1的followers
         friendships = Friendship.objects.filter(to_user_id=pk).order_by('-created_at')
-        serializer = FollowerSerializer(friendships, many=True)
+        serializer = FollowerSerializer(friendships, many=True, context={'request': request})
         return Response(
             {'followers': serializer.data},
             status=status.HTTP_200_OK,
@@ -38,7 +38,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
     @action(methods=['GET'], detail=True, permission_classes=[AllowAny])
     def followings(self, request, pk):
         friendships = Friendship.objects.filter(from_user_id=pk).order_by('-created_at')
-        serializer = FollowingSerializer(friendships, many=True)
+        serializer = FollowingSerializer(friendships, many=True, context={'request': request})
         return Response(
             {'followings': serializer.data},
             status=status.HTTP_200_OK,
@@ -75,7 +75,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
             # instead returning success=> true, returning the pk (the request tries to follow the pk) data
             # the return data includes user_id, created_at
 
-            FollowingSerializer(instance).data,
+            FollowingSerializer(instance, context={'request': request}).data,
             status=status.HTTP_201_CREATED,
         )
 
