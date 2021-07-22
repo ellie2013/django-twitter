@@ -116,8 +116,6 @@ class FriendshipApiTests(TestCase):
         self.assertEqual(response.status_code, 405)
         # get is ok
         response = self.anonymous_client.get(url)
-        print("\n going to print: \n")
-        print(response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data['results']), 2)
         # 确保按照时间倒序
