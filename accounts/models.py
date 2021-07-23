@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import pre_delete, post_save
+
+from accounts.listeners import user_changed, profile_changed
 
 
 class UserProfile(models.Model):
@@ -38,3 +41,10 @@ def get_profile(user):
 
 # 给 User Model 增加了一个 profile 的 property 方法用于快捷访问
 User.profile = property(get_profile)
+
+# hook up with listeners to invalidate cache
+pre_delete.connect(user_changed, sender=User)
+post_save.connect(user_changed, sender=User)
+
+pre_delete.connect(profile_changed, sender=UserProfile)
+post_save.connect(profile_changed, sender=UserProfile)
