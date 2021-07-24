@@ -71,7 +71,6 @@ class FriendshipViewSet(viewsets.GenericViewSet):
                 'errors': serializer.errors,
             }, status=status.HTTP_400_BAD_REQUEST)
         instance = serializer.save()
-        FriendshipService.invalidate_following_cache(request.user.id)
         return Response(
             # instead returning success=> true, returning the pk (the request tries to follow the pk) data
             # the return data includes user_id, created_at
@@ -101,5 +100,4 @@ class FriendshipViewSet(viewsets.GenericViewSet):
             from_user=request.user,
             to_user=pk,
         ).delete()
-        FriendshipService.invalidate_following_cache(request.user.id)
         return Response({'success': True, 'deleted': deleted})
