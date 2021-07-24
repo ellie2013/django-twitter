@@ -9,6 +9,7 @@ from accounts.services import UserService
 from likes.models import Like
 from twitter.constants import TweetPhotoStatus, TWEET_PHOTO_STATUS_CHOICES
 from utils.listeners import invalidate_object_cache
+from utils.memcached_helper import MemcachedHelper
 from utils.time_helpers import utc_now
 
 
@@ -46,7 +47,7 @@ class Tweet(models.Model):
 
     @property
     def cached_user(self):
-        return UserService.get_user_through_cache(self.user_id)
+        return MemcachedHelper.get_object_through_cache(User, self.user_id)
 
     def __str__(self):
         # 这里是你执行 print(tweet instance) 的时候会显示的内容
