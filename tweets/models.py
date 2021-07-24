@@ -3,9 +3,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
 
+from django.db.models.signals import post_save
+
 from accounts.services import UserService
 from likes.models import Like
 from twitter.constants import TweetPhotoStatus, TWEET_PHOTO_STATUS_CHOICES
+from utils.listeners import invalidate_object_cache
 from utils.time_helpers import utc_now
 
 
@@ -89,3 +92,5 @@ class TweetPhoto(models.Model):
 
     def __str__(self):
         return f'{self.tweet_id}: {self.file}'
+
+    post_save.connect(invalidate_object_cache, sender=Tweet)
