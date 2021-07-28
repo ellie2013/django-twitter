@@ -7,6 +7,7 @@ from django.db.models.signals import post_save
 
 from accounts.services import UserService
 from likes.models import Like
+from tweets.listeners import push_tweet_to_cache
 from twitter.constants import TweetPhotoStatus, TWEET_PHOTO_STATUS_CHOICES
 from utils.listeners import invalidate_object_cache
 from utils.memcached_helper import MemcachedHelper
@@ -95,3 +96,4 @@ class TweetPhoto(models.Model):
         return f'{self.tweet_id}: {self.file}'
 
     post_save.connect(invalidate_object_cache, sender=Tweet)
+    post_save.connect(push_tweet_to_cache, sender=Tweet)
