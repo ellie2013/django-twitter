@@ -100,5 +100,6 @@ class TweetPhoto(models.Model):
     def __str__(self):
         return f'{self.tweet_id}: {self.file}'
 
-    post_save.connect(invalidate_object_cache, sender=Tweet)
-    post_save.connect(push_tweet_to_cache, sender=Tweet)
+
+post_save.connect(invalidate_object_cache, sender=Tweet)
+post_save.connect(push_tweet_to_cache, sender=Tweet)
