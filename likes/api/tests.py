@@ -2,7 +2,6 @@ from rest_framework.test import APIClient
 
 from testing.testcases import TestCase
 
-
 LIKE_BASE_URL = '/api/likes/'
 LIKE_CANCEL_URL = '/api/likes/cancel/'
 COMMENT_LIST_API = '/api/comments/'
@@ -68,7 +67,7 @@ class LikeApiTests(TestCase):
             'object_id': -1,
         })
         self.assertEqual(response.status_code, 400)
-        self.assertEqual('object_id'in response.data['errors'], True)
+        self.assertEqual('object_id' in response.data['errors'], True)
 
         # post success
         response = self.linghu_client.post(LIKE_BASE_URL, data)
@@ -202,3 +201,21 @@ class LikeApiTests(TestCase):
         # print(response.data)
         self.assertEqual(response.data['likes'][0]['user']['id'], self.linghu.id)
         self.assertEqual(response.data['likes'][1]['user']['id'], self.dongxie.id)
+
+    def test_likes_count(self):
+        tweet = self.create_tweet(self.linghu)
+        data = {'content_type': 'tweet', 'object_id': tweet.id}
+        self.linghu_client.post(LIKE_BASE_URL, data)
+
+        tweet_url = TWEET_DETAIL_API.format(tweet.id)
+        response = self.linghu_client.get(tweet_url)
+        self.assertEqual(response.data['likes_count'], 1)
+        tweet.refresh_from_db()
+        self.assertEqual(tweet.likes_count, 1)
+
+        # dongxie canceled likes
+        self.linghu_client.post(LIKE_BASE_URL + 'cancel/', data)
+        tweet.refresh_from_db()
+        self.assertEqual(tweet.likes_count, 0)
+        response = self.dongxie_client.get(tweet_url)
+        self.assertEqual(response.data['likes_count'], 0)
