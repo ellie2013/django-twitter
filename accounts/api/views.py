@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 
+from django.utils.decorators import method_decorator
+from ratelimit.decorators import ratelimit
+
 from django.contrib.auth import (
     authenticate as django_authenticate,
     login as django_login,
@@ -36,6 +39,7 @@ class AccountViewSet(viewsets.ViewSet):
     serializer_class = SignupSerializer
 
     @action(methods=['POST'], detail=False)
+    @method_decorator(ratelimit(key='ip', rate='3/s', method='POST', block=True))
     def signup(self, request):
         serializer = SignupSerializer(data=request.data)
         if not serializer.is_valid():
@@ -55,6 +59,7 @@ class AccountViewSet(viewsets.ViewSet):
         })
 
     @action(methods=['POST'], detail=False)
+    @method_decorator(ratelimit(key='ip', rate='3/s', method='POST', block=True))
     def login(self, request):
         """
         默认的 username 是 admin, password 也是 admin
@@ -80,6 +85,7 @@ class AccountViewSet(viewsets.ViewSet):
         })
 
     @action(methods=['GET'], detail=False)
+    @method_decorator(ratelimit(key='ip', rate='3/s', method='GET', block=True))
     def login_status(self, request):
         """
           查看用户当前的登录状态和具体信息
@@ -93,6 +99,7 @@ class AccountViewSet(viewsets.ViewSet):
         return Response(data)
 
     @action(methods=['POST'], detail=False)
+    @method_decorator(ratelimit(key='ip', rate='3/s', method='POST', block=True))
     def logout(self, request):
         """
         登出当前用户

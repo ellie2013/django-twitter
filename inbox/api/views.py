@@ -11,6 +11,9 @@ from inbox.api.serializers import (
 )
 from utils.decorators import required_params
 
+from django.utils.decorators import method_decorator
+from ratelimit.decorators import ratelimit
+
 
 class NotificationViewSet(
     viewsets.GenericViewSet,
@@ -25,6 +28,7 @@ class NotificationViewSet(
         return Notification.objects.filter(recipient=self.request.user)
 
     @action(methods=['GET'], detail=False, url_path='unread-count')
+    @method_decorator(ratelimit(key='user', rate='3/s', method='GET', block=True))
     def unread_count(self, request, *args, **kwargs):
         # GET /api/notifications/unread-count/ url默认的标准是不能有下划线的，所以要用url_path重写一下action name
         # 如果代码比较长，可以这样写
@@ -36,12 +40,14 @@ class NotificationViewSet(
         return Response({'unread_count': count}, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=False, url_path='mark-all-as-read')
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def mark_all_as_read(self, request, *args, **kwargs):
         # Notification.objects.update
         updated_count = self.get_queryset().update(unread=False)
         return Response({'marked_count': updated_count}, status=status.HTTP_200_OK)
 
     @required_params(method='POST', params=['unread']) # it doesn't matter if method is PUT
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def update(self, request, *args, **kwargs):
         # PUT /api/notifications/1
         """

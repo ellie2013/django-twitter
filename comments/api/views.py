@@ -12,6 +12,9 @@ from comments.api.serializers import (
 from utils.decorators import required_params
 from inbox.services import NotificationService
 
+from django.utils.decorators import method_decorator
+from ratelimit.decorators import ratelimit
+
 # Note: CommentViewSet 继承的是 GenericViewSet 而不是 ModelViewSet
 # 如果写成 class CommentViewSet(viewsets.ModelViewSet),
 # 可以看到list/retrieve a single object 在没有定义list/retrieve method
@@ -45,6 +48,7 @@ class CommentViewSet(viewsets.GenericViewSet):
 
     # GET /api/comments/?tweet_id=1
     @required_params(params=['tweet_id'])
+    @method_decorator(ratelimit(key='user', rate='10/s', method='GET', block=True))
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         # this is related to the django_filter backend
@@ -62,6 +66,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def create(self, request, *args, **kwargs):
         data = {
             'user_id': request.user.id,
@@ -85,6 +90,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def update(self, request, *args, **kwargs):
         # get_object 是 DRF 包装的一个函数，会在找不到的时候 raise 404 error
         # 所以这里无需做额外判断
@@ -106,6 +112,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @method_decorator(ratelimit(key='user', rate='5/s', method='POST', block=True))
     def destroy(self, request, *args, **kwargs):
         comment = self.get_object()
         comment.delete()
