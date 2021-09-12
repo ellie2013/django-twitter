@@ -63,9 +63,8 @@ class HBaseModel:
         """
         field_hash = cls.get_field_hash()
         values = []
-        for key, field in field_hash.items():
-            if field.column_family:
-                continue
+        for key in cls.Meta.row_key:
+            field = field_hash.get(key)
             value = data.get(key)
             if value is None:
                 raise BadRowKeyError(f"{key} is missing in row key")
