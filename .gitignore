@@ -4,6 +4,11 @@ Vagrantfile
 .idea
 .DS_Store
 media/
+hbase-2.4.5-bin.tar.gz
+jdk-8u301-linux-x64.tar.gz
+hbase-2.4.5/
+thrift-0.14.2.tar.gz
+thrift-0.14.2/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
