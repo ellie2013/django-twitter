@@ -1,6 +1,6 @@
 from django_hbase.models import HBaseField, IntegerField, TimestampField
 from django_hbase.client import HBaseClient
-
+from django.conf import settings
 
 class BadRowKeyError(Exception):
     pass
@@ -19,9 +19,7 @@ class HBaseModel:
     @classmethod
     def get_table(cls):
         conn = HBaseClient.get_connection()
-        if not cls.Meta.table_name:
-            raise NotImplementedError('Missing table_name in HBaseModel meta class')
-        return conn.table(cls.Meta.table_name)
+        return conn.table(cls.get_table_name())
 
     @property
     def row_key(self):
@@ -63,9 +61,8 @@ class HBaseModel:
         """
         field_hash = cls.get_field_hash()
         values = []
-        for key, field in field_hash.items():
-            if field.column_family:
-                continue
+        for key in cls.Meta.row_key:
+            field = field_hash.get(key)
             value = data.get(key)
             if value is None:
                 raise BadRowKeyError(f"{key} is missing in row key")
@@ -156,3 +153,34 @@ class HBaseModel:
         instance = cls(**kwargs)
         instance.save()
         return instance
+
+    @classmethod
+    def get_table_name(cls):
+        if not cls.Meta.table_name:
+            raise NotImplementedError('Missing table_name in HBaseModel meta class')
+        if settings.TESTING:
+            return 'test_{}'.format(cls.Meta.table_name)
+        return cls.Meta.table_name
+
+    @classmethod
+    def drop_table(cls):
+        if not settings.TESTING:
+            raise Exception('You can not drop table outside of unit tests')
+        conn = HBaseClient.get_connection()
+        conn.delete_table(cls.get_table_name(), True)
+
+    @classmethod
+    def create_table(cls):
+        if not settings.TESTING:
+            raise Exception('You can not create table outside of unit tests')
+        conn = HBaseClient.get_connection()
+        # convert table name from bytes to string
+        tables = [table.decode('utf-8') for table in conn.tables()]
+        if cls.get_table_name() in tables:
+            return
+        column_families = {
+            field.column_family: dict()
+            for key, field in cls.get_field_hash().items()
+            if field.column_family is not None
+        }
+        conn.create_table(cls.get_table_name(), column_families)
