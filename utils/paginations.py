@@ -1,8 +1,9 @@
-from rest_framework.pagination import BasePagination
-from rest_framework.response import Response
 from dateutil import parser
 from django.conf import settings
+from rest_framework.pagination import BasePagination
+from rest_framework.response import Response
 from utils.time_constants import MAX_TIMESTAMP
+
 
 class EndlessPagination(BasePagination):
     page_size = 20
@@ -16,7 +17,11 @@ class EndlessPagination(BasePagination):
 
     def paginate_ordered_list(self, reverse_ordered_list, request):
         if 'created_at__gt' in request.query_params:
-            created_at__gt = parser.isoparse(request.query_params['created_at__gt'])
+            # 兼容 iso 格式和 int 格式的时间戳
+            try:
+                created_at__gt = parser.isoparse(request.query_params['created_at__gt'])
+            except ValueError:
+                created_at__gt = int(request.query_params['created_at__gt'])
             objects = []
             for obj in reverse_ordered_list:
                 if obj.created_at > created_at__gt:
@@ -28,7 +33,11 @@ class EndlessPagination(BasePagination):
 
         index = 0
         if 'created_at__lt' in request.query_params:
-            created_at__lt = parser.isoparse(request.query_params['created_at__lt'])
+            # 兼容 iso 格式和 int 格式的时间戳
+            try:
+                created_at__lt = parser.isoparse(request.query_params['created_at__lt'])
+            except ValueError:
+                created_at__lt = int(request.query_params['created_at__lt'])
             for index, obj in enumerate(reverse_ordered_list):
                 if obj.created_at < created_at__lt:
                     break
@@ -40,7 +49,6 @@ class EndlessPagination(BasePagination):
         return reverse_ordered_list[index: index + self.page_size]
 
     def paginate_queryset(self, queryset, request, view=None):
-
         if 'created_at__gt' in request.query_params:
             # created_at__gt 用于下拉刷新的时候加载最新的内容进来
             # 为了简便起见，下拉刷新不做翻页机制，直接加载所有更新的数据
