@@ -10,7 +10,7 @@ COMMENT_DETAIL_URL = '/api/comments/{}/'
 class CommentApiTests(TestCase):
 
     def setUp(self):
-        self.clear_cache()
+        super(CommentApiTests, self).setUp()
         self.linghu = self.create_user('linghu')
         self.linghu_client = APIClient()
         self.linghu_client.force_authenticate(self.linghu)
