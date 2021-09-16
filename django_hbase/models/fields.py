@@ -19,5 +19,5 @@ class IntegerField(HBaseField):
 class TimestampField(HBaseField):
     field_type = 'timestamp'
     # 以下这个__int__ 也可以不用写，因为子类跟父类一样，子类的__int__没有做任何改变
-    def __init__(self, *args, auto_now_add=False, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(TimestampField, self).__init__( *args, **kwargs)

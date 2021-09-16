@@ -16,7 +16,7 @@ from friendships.services import FriendshipService
 from django.utils.decorators import method_decorator
 from ratelimit.decorators import ratelimit
 
-from friendships.hbase_models import HBaseFollowing, HBaseFollower
+from friendships.models import HBaseFollowing, HBaseFollower, Friendship
 from gatekeeper.models import GateKeeper
 from utils.paginations import EndlessPagination
 

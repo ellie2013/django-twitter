@@ -1,5 +1,4 @@
 from newsfeeds.models import NewsFeed
-from friendships.models import Friendship
 from rest_framework.test import APIClient
 
 from newsfeeds.services import NewsFeedService
