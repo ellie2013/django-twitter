@@ -13,6 +13,7 @@ USER_PROFILE_DETAIL_URL = '/api/profiles/{}/'
 class AccountApiTests(TestCase):
 
     def setUp(self):
+        super(AccountApiTests, self).setUp()
         # 这个函数会在每个 test function 执行的时候被执行
         self.client = APIClient()  # it doesn't matter if remove this line. self.client=APIClient()
         self.user = self.create_user(
